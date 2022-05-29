@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array
+        name="spinnerList">
+        <item>한국(KRW)</item>
+        <item>일본(JPY)</item>
+        <item>필리핀(PHP)</item>
+    </string-array>
+</resources>
