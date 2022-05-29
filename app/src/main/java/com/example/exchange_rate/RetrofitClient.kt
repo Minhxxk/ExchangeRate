@@ -5,6 +5,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
+
+
+
     private const val BASE_URL = "https://api.apilayer.com/currency_data/"
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
@@ -14,7 +17,4 @@ object RetrofitClient {
 
     val service = retrofit.create(RetrofitService::class.java)
 
-//    fun getInstance(): RetrofitService? {
-//        return api
-//    }
 }

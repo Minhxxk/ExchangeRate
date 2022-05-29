@@ -10,7 +10,7 @@ import retrofit2.Call
 import retrofit2.Response
 import javax.security.auth.callback.Callback
 
-const val API_KEY = "AlgYtpqGqRoneA1UhDc8EvEi42RDYWPs"
+const val API_KEY = "mSbZA8p8za288WeLaXGq1jurICaaU0E6"
 const val SOURCE = "USD"
 class MainViewModel : ViewModel() {
     private var _infoList = MutableLiveData<ExchangeRateInfo>()
