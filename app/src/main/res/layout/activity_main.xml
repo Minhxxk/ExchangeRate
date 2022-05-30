@@ -104,7 +104,7 @@
                 android:id="@+id/etRemittance"
                 android:textSize="20dp"
                 android:maxLength="5"
-                android:numeric="integer"/>
+                android:inputType="number"/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

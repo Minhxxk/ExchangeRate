@@ -19,32 +19,27 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             val iRetrofit = RetrofitClient.getClient()?.create(RetrofitService::class.java)
 
-            val call = iRetrofit?.getExchangeRate(
-                API.API_KEY,
-                API.SOURCE
-            ) //값이 없으면 return한다.있으면 it return {
-            if (call != null) {
-                call.enqueue(object : retrofit2.Callback<ExchangeRateInfo> {
-                    override fun onResponse(
-                        call: Call<ExchangeRateInfo>,
-                        response: Response<ExchangeRateInfo>
-                    ) {
-                        if (response.isSuccessful) {
-                            val responseBody = response.body()
-                            if (responseBody != null) {
-                                Log.i("minhxxk", "isSuccessful - Success $responseBody")
-                                _infoList.value = responseBody!!
-                            }
-                        } else {
-                            Log.i("minhxxk", "isSuccessful - Failure")
-                        }
-                    }
+            val call = iRetrofit?.getExchangeRate(API.API_KEY, API.SOURCE).let { it } ?: return@launch
 
-                    override fun onFailure(call: Call<ExchangeRateInfo>, t: Throwable) {
-                        Log.i("minhxxk", "onFailure - Failure $t")
+            call.enqueue(object : retrofit2.Callback<ExchangeRateInfo> {
+                override fun onResponse(
+                    call: Call<ExchangeRateInfo>,
+                    response: Response<ExchangeRateInfo>
+                ) {
+                    if (response.isSuccessful) {
+                        val responseBody = response.body()
+                        if (responseBody != null) {
+                            _infoList.value = responseBody!!
+                        }
+                    } else {
+                        Log.i("minhxxk", "isSuccessful - Failure")
                     }
-                })
-            }
+                }
+
+                override fun onFailure(call: Call<ExchangeRateInfo>, t: Throwable) {
+                    Log.i("minhxxk", "onFailure - Failure $t")
+                }
+            })
         }
     }
 }

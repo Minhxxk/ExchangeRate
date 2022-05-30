@@ -16,26 +16,20 @@ import java.text.SimpleDateFormat
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainViewModel
-    private lateinit var select: String
+    private lateinit var select: SELECT_COUNTRY
     var rate: Float = 0.0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        //ViewModel 인스턴스 생성
-        viewModel = ViewModelProvider(
-            this,
-            ViewModelProvider.NewInstanceFactory()
-        ).get(MainViewModel::class.java)
-        onBinding()
+        viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory()).get(MainViewModel::class.java)
+        setSpinnerAdapter()
         setListener()
         setObserve()
-
     }
 
-    private fun onBinding() {
+    private fun setSpinnerAdapter() {
         binding.spinner.adapter = ArrayAdapter.createFromResource(
             this,
             R.array.spinnerList,
@@ -47,103 +41,71 @@ class MainActivity : AppCompatActivity() {
         binding.apply {
             //Spinner 아이템 클릭 시
             spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long
-                ) {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    etRemittance.text.clear()
+                    viewModel.getData()
                     when (position) {
-                        0 -> {  //한국(KRW)
-                            viewModel.getData()
-                            select = SELECT_COUNTRY.KRW
-                            etRemittance.setText("")
-                        }
-                        1 -> {  //일본(JPY)
-                            viewModel.getData()
-                            select = SELECT_COUNTRY.JPY
-                            etRemittance.setText("")
-                        }
-                        2 -> {  //필리핀(PHP)
-                            viewModel.getData()
-                            select = SELECT_COUNTRY.PHP
-                            etRemittance.setText("")
-                        }
+                        0 ->  select = SELECT_COUNTRY.KRW//한국(KRW)
+                        1 ->  select = SELECT_COUNTRY.JPY//일본(JPY)
+                        2 ->  select = SELECT_COUNTRY.PHP//필리핀(PHP)
                     }
                 }
-
-                override fun onNothingSelected(parent: AdapterView<*>?) {
-                }
+                override fun onNothingSelected(parent: AdapterView<*>?) { }
             }
-
             //EditText 입력 변화 이벤트
             etRemittance.addTextChangedListener(object : TextWatcher {
                 //입력하여 변화가 생기기전에 처리
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-                }
-
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { }
                 //입력란의 변화와 동시에 처리
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                     if (s != null && s.toString() != "") {
                         if (Integer.parseInt(s.toString()) in 0..10000) {
-                            tvResult.text =
-                                "수취금액은 ${convertDecimalFormat(Integer.parseInt(s.toString()) * rate)} $select 입니다."
+                            var stringFormat = getString(R.string.edittext_input_succ)
+                            var result=convertDecimalFormat(Integer.parseInt(s.toString()) * rate)
+                            tvResult.text = String.format(stringFormat, result, select.eng)
                         } else {
-                            customToastView()
+                            Toast.makeText(this@MainActivity, R.string.edittext_input_err, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
-
                 //입력이 끝났을 때 처리
-                override fun afterTextChanged(s: Editable?) {}
+                override fun afterTextChanged(s: Editable?) { }
             })
         }
     } //end of Listener
 
     private fun setObserve() {
-        viewModel.infoList.observe(this, {
-            when (select) {
-                SELECT_COUNTRY.KRW -> {
-                    binding.tvNation.text = "한국(KRW)"
-                    rate = it.quotes.usdKrw
-                    binding.tvExchangeRate.text = "${convertDecimalFormat(rate)} $select / USD"
+        binding.apply {
+            viewModel.infoList.observe(this@MainActivity, {
+                when (select) {
+                    SELECT_COUNTRY.KRW -> {
+                        tvNation.text = "${select.kor}(${select.eng})"
+                        rate = it.quotes.usdKrw
+                        tvExchangeRate.text = "${convertDecimalFormat(rate)} ${select.eng} / ${API.SOURCE}"
+                    }
+                    SELECT_COUNTRY.JPY -> {
+                        tvNation.text = "${select.kor}(${select.eng})"
+                        rate = it.quotes.usdJpy
+                        tvExchangeRate.text = "${convertDecimalFormat(rate)} ${select.eng} / ${API.SOURCE}"
+                    }
+                    SELECT_COUNTRY.PHP -> {
+                        tvNation.text = "${select.kor}(${select.eng})"
+                        rate = it.quotes.usdPhp
+                        tvExchangeRate.text = "${convertDecimalFormat(rate)} ${select.eng} / ${API.SOURCE}"
+                    }
                 }
-                SELECT_COUNTRY.JPY -> {
-                    binding.tvNation.text = "일본(JPY)"
-                    rate = it.quotes.usdJpy
-                    binding.tvExchangeRate.text = "${convertDecimalFormat(rate)} $select / USD"
-                }
-                SELECT_COUNTRY.PHP -> {
-                    binding.tvNation.text = "필리핀(PHP)"
-                    rate = it.quotes.usdPhp
-                    binding.tvExchangeRate.text = "${convertDecimalFormat(rate)} $select / USD"
-                }
-            }
-            binding.tvInquiryTime.text = convertTimestampToDate(it.timestamp)
-        })
-    }
+                tvInquiryTime.text = convertTimestampToDate(it.timestamp)
+            })
+        }
+    } //end of Listener
 
     //조회 시간 변환
     private fun convertTimestampToDate(timeStamp: Long): String {
         return SimpleDateFormat("yyyy-MM-dd HH:mm").format(timeStamp * 1000L)
-    }
+    } //end of Listener
 
+    //환율 및 수취금액 천단위 콤마, 소숫점 둘째 자리
     private fun convertDecimalFormat(money: Float?): String {
         return DecimalFormat("#,###.##").format(money)
-    }
-
-    //CustomToast
-    private fun customToastView() {
-        val inflater = layoutInflater.inflate(R.layout.toast_board, null)
-        var toast = Toast(this)
-        toast.view = inflater
-        toast.show()
-
-    }
-
+    } //end of Listener
 }
