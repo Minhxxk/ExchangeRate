@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.example.exchange_rate.databinding.ActivityMainBinding
 import java.text.DecimalFormat
@@ -18,6 +19,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainViewModel
     private lateinit var select: String
+    var timeStamp: Long = 0
     var rate: Float = 0.0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,19 +59,15 @@ class MainActivity : AppCompatActivity() {
                     when (position) {
                         0 -> {  //한국(KRW)
                             viewModel.getData()
-                            select = "KRW"
-//                            Toast.makeText(this@MainActivity, "한국 선택", Toast.LENGTH_SHORT).show()
-
+                            select = SELECT_COUNTRY.KRW
                         }
                         1 -> {  //일본(JPY)
                             viewModel.getData()
-                            select = "JPY"
-//                            Toast.makeText(this@MainActivity, "일본 선택", Toast.LENGTH_SHORT).show()
+                            select = SELECT_COUNTRY.JPY
                         }
                         2 -> {  //필리핀(PHP)
                             viewModel.getData()
-                            select = "PHP"
-//                            Toast.makeText(this@MainActivity, "필리핀 선택", Toast.LENGTH_SHORT).show()
+                            select = SELECT_COUNTRY.PHP
                         }
                     }
                 }
@@ -86,9 +84,14 @@ class MainActivity : AppCompatActivity() {
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                     Log.i("minhxxk", "setListener() - $s")
                     if (s != null && s.toString() != "") {
-                        tvResult.text = "수취금액은 ${(Integer.parseInt(s.toString()) * rate)} $select 입니다."
+                        if(Integer.parseInt(s.toString()) in 0..10000) {
+                            tvResult.text = "수취금액은 ${convertDecimalFormat(Integer.parseInt(s.toString()) * rate)} $select 입니다."
+                        } else{
+                            customToastView()
+                        }
                     }
                 }
+
                 //입력이 끝났을 때 처리
                 override fun afterTextChanged(s: Editable?) {}
             })
@@ -98,20 +101,20 @@ class MainActivity : AppCompatActivity() {
     fun setObserve() {
         viewModel.infoList.observe(this, {
             when (select) {
-                "KRW" -> {
+                SELECT_COUNTRY.KRW -> {
                     binding.tvNation.text = "한국(KRW)"
                     rate = it.quotes.usdKrw
-                    binding.tvExchangeRate.text = "${(String.format("%.2f", rate))} $select / USD"
+                    binding.tvExchangeRate.text = "${convertDecimalFormat(rate)} $select / USD"
                 }
-                "JPY" -> {
+                SELECT_COUNTRY.JPY -> {
                     binding.tvNation.text = "일본(JPY)"
                     rate = it.quotes.usdJpy
-                    binding.tvExchangeRate.text = "${(String.format("%.2f", rate))} $select / USD"
+                    binding.tvExchangeRate.text = "${convertDecimalFormat(rate)} $select / USD"
                 }
-                "PHP" -> {
+                SELECT_COUNTRY.PHP -> {
                     binding.tvNation.text = "필리핀(PHP)"
                     rate = it.quotes.usdPhp
-                    binding.tvExchangeRate.text = "${(String.format("%.2f", rate))} $select / USD"
+                    binding.tvExchangeRate.text = "${convertDecimalFormat(rate)} $select / USD"
                 }
             }
             binding.tvInquiryTime.text = convertTimestampToDate(it.timestamp)
@@ -125,9 +128,17 @@ class MainActivity : AppCompatActivity() {
         return SimpleDateFormat("yyyy-MM-dd HH:mm").format(timeStamp * 1000L)
     }
 
-    fun convertDecimalFormat(money: Float?) {
-        val df = DecimalFormat("#,###")
-        df.format(money)
+    private fun convertDecimalFormat(money: Float?): String {
+        Log.d("minhxxk", " convertDecimalFormat - $money")
+        return DecimalFormat("#,###.##").format(money)
+    }
+    //CustomToast
+    private fun customToastView() {
+        val inflater = layoutInflater.inflate(R.layout.toast_board, null)
+        var toast = Toast(this)
+        toast.view = inflater
+        toast.show()
+
     }
 
 }

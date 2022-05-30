@@ -7,7 +7,7 @@ import retrofit2.http.Query
 import retrofit2.http.Url
 
 interface RetrofitService {
-    @GET("live")
+    @GET(API.LIVE)
     fun getExchangeRate(
         @Header("apikey") apiKey: String,
         @Query("source") source: String

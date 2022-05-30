@@ -10,8 +10,6 @@ import retrofit2.Call
 import retrofit2.Response
 import javax.security.auth.callback.Callback
 
-const val API_KEY = "mSbZA8p8za288WeLaXGq1jurICaaU0E6"
-const val SOURCE = "USD"
 
 class MainViewModel : ViewModel() {
     private var _infoList = MutableLiveData<ExchangeRateInfo>()
@@ -22,10 +20,16 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             val iRetrofit = RetrofitClient.getClient()?.create(RetrofitService::class.java)
 
-            val call = iRetrofit?.getExchangeRate(API_KEY, SOURCE) //값이 없으면 return한다.있으면 it return
+            val call = iRetrofit?.getExchangeRate(
+                API.API_KEY,
+                API.SOURCE
+            ) //값이 없으면 return한다.있으면 it return {
             if (call != null) {
                 call.enqueue(object : retrofit2.Callback<ExchangeRateInfo> {
-                    override fun onResponse(call: Call<ExchangeRateInfo>, response: Response<ExchangeRateInfo>) {
+                    override fun onResponse(
+                        call: Call<ExchangeRateInfo>,
+                        response: Response<ExchangeRateInfo>
+                    ) {
                         if (response.isSuccessful) {
                             val responseBody = response.body()
                             if (responseBody != null) {
@@ -44,6 +48,4 @@ class MainViewModel : ViewModel() {
             }
         }
     }
-
-
 }

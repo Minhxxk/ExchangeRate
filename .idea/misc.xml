@@ -3,7 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/CodingTest/app/src/main/res/drawable/toast_shape.xml" value="0.1" />
         <entry key="..\:/CodingTest/app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="..\:/CodingTest/app/src/main/res/layout/toast_board.xml" value="0.5" />
         <entry key="..\:/Users/tacti/AppData/Local/Android/Sdk/platforms/android-31/data/res/layout/simple_spinner_dropdown_item.xml" value="0.1984375" />
       </map>
     </option>

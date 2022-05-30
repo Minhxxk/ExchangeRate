@@ -6,8 +6,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
-    private const val BASE_URL = "https://api.apilayer.com/currency_data/"
-
     private var retrofitClient: Retrofit? = null
 
     fun getClient(): Retrofit? {
@@ -19,7 +17,7 @@ object RetrofitClient {
         if (retrofitClient == null) {
             //레트로핏 빌더를 통해 인스턴스 생성
             retrofitClient = Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(API.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 //위에서 설정한 클라이언트로 레트로핏 클라이언트를 설정한다.
                 .client(client.build())
