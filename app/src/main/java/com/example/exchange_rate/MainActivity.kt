@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -13,13 +12,11 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.exchange_rate.databinding.ActivityMainBinding
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
-import kotlin.text.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainViewModel
     private lateinit var select: String
-    var timeStamp: Long = 0
     var rate: Float = 0.0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,14 +57,17 @@ class MainActivity : AppCompatActivity() {
                         0 -> {  //한국(KRW)
                             viewModel.getData()
                             select = SELECT_COUNTRY.KRW
+                            etRemittance.setText("")
                         }
                         1 -> {  //일본(JPY)
                             viewModel.getData()
                             select = SELECT_COUNTRY.JPY
+                            etRemittance.setText("")
                         }
                         2 -> {  //필리핀(PHP)
                             viewModel.getData()
                             select = SELECT_COUNTRY.PHP
+                            etRemittance.setText("")
                         }
                     }
                 }
@@ -79,14 +79,21 @@ class MainActivity : AppCompatActivity() {
             //EditText 입력 변화 이벤트
             etRemittance.addTextChangedListener(object : TextWatcher {
                 //입력하여 변화가 생기기전에 처리
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
                 //입력란의 변화와 동시에 처리
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    Log.i("minhxxk", "setListener() - $s")
                     if (s != null && s.toString() != "") {
-                        if(Integer.parseInt(s.toString()) in 0..10000) {
-                            tvResult.text = "수취금액은 ${convertDecimalFormat(Integer.parseInt(s.toString()) * rate)} $select 입니다."
-                        } else{
+                        if (Integer.parseInt(s.toString()) in 0..10000) {
+                            tvResult.text =
+                                "수취금액은 ${convertDecimalFormat(Integer.parseInt(s.toString()) * rate)} $select 입니다."
+                        } else {
                             customToastView()
                         }
                     }
@@ -98,7 +105,7 @@ class MainActivity : AppCompatActivity() {
         }
     } //end of Listener
 
-    fun setObserve() {
+    private fun setObserve() {
         viewModel.infoList.observe(this, {
             when (select) {
                 SELECT_COUNTRY.KRW -> {
@@ -118,20 +125,18 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             binding.tvInquiryTime.text = convertTimestampToDate(it.timestamp)
-            Log.i("minhxxk", "setObserve - $it")
         })
     }
 
     //조회 시간 변환
     private fun convertTimestampToDate(timeStamp: Long): String {
-        Log.d("minhxxk", " convertTimestampToDate - $timeStamp")
         return SimpleDateFormat("yyyy-MM-dd HH:mm").format(timeStamp * 1000L)
     }
 
     private fun convertDecimalFormat(money: Float?): String {
-        Log.d("minhxxk", " convertDecimalFormat - $money")
         return DecimalFormat("#,###.##").format(money)
     }
+
     //CustomToast
     private fun customToastView() {
         val inflater = layoutInflater.inflate(R.layout.toast_board, null)

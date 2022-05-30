@@ -25,16 +25,4 @@ object RetrofitClient {
         }
         return retrofitClient
     }
-
-
-
-
-//    private val retrofit = Retrofit.Builder()
-//        .baseUrl(BASE_URL)
-//        .client(OkHttpClient())
-//        .addConverterFactory(GsonConverterFactory.create())
-//        .build()
-//
-//    val service = retrofit.create(RetrofitService::class.java)
-
 }
