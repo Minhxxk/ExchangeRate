@@ -6,7 +6,7 @@ data class ExchangeRateInfo (
     @SerializedName("success")
     val success: Boolean,
     @SerializedName("timestamp")
-    val timestamp: Int,
+    val timestamp: Long,
     @SerializedName("source")
     val source: String,
     @SerializedName("quotes")

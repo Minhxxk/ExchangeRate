@@ -12,47 +12,38 @@ import javax.security.auth.callback.Callback
 
 const val API_KEY = "mSbZA8p8za288WeLaXGq1jurICaaU0E6"
 const val SOURCE = "USD"
+
 class MainViewModel : ViewModel() {
     private var _infoList = MutableLiveData<ExchangeRateInfo>()
     val infoList: LiveData<ExchangeRateInfo>
-    get() = _infoList
-    //실패시
-    private var _infoFailList = MutableLiveData<String>()
-    val infoFailList: LiveData<String>
-    get() = _infoFailList
+        get() = _infoList
 
-    init {
-        Log.d("minhxxk", "MainViewModel - init()")
-    }
-
-    fun getData(){
+    fun getData() {
         viewModelScope.launch {
-            val callGetLive = RetrofitClient.service.getExchangeRate(API_KEY, SOURCE)
-            callGetLive.enqueue(object : retrofit2.Callback<ExchangeRateInfo> {
-                override fun onResponse(
-                    call: Call<ExchangeRateInfo>,
-                    response: Response<ExchangeRateInfo>
-                ) {
-                    if(response.isSuccessful){
-                        val responseBody = response.body()
-                        if (responseBody != null) {
-                            Log.i("minhxxk", "isSuccessful - Success $responseBody")
-                            _infoList.value = responseBody!!
-                            val success = responseBody.success.toString()
-                            Log.d("minhxxk", "getData - $success")
-                        }
-                    } else{
-                        Log.i("minhxxk", "isSuccessful - Failure")
-                    }
-                }
+            val iRetrofit = RetrofitClient.getClient()?.create(RetrofitService::class.java)
 
-                override fun onFailure(call: Call<ExchangeRateInfo>, t: Throwable) {
-                    Log.i("minhxxk", "onFailure - Failure")
-                }
-            })
+            val call = iRetrofit?.getExchangeRate(API_KEY, SOURCE) //값이 없으면 return한다.있으면 it return
+            if (call != null) {
+                call.enqueue(object : retrofit2.Callback<ExchangeRateInfo> {
+                    override fun onResponse(call: Call<ExchangeRateInfo>, response: Response<ExchangeRateInfo>) {
+                        if (response.isSuccessful) {
+                            val responseBody = response.body()
+                            if (responseBody != null) {
+                                Log.i("minhxxk", "isSuccessful - Success $responseBody")
+                                _infoList.value = responseBody!!
+                            }
+                        } else {
+                            Log.i("minhxxk", "isSuccessful - Failure")
+                        }
+                    }
+
+                    override fun onFailure(call: Call<ExchangeRateInfo>, t: Throwable) {
+                        Log.i("minhxxk", "onFailure - Failure $t")
+                    }
+                })
+            }
         }
     }
-
 
 
 }
