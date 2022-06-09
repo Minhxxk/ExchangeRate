@@ -2,7 +2,7 @@ package com.example.exchange_rate
 
 object API {
     const val BASE_URL: String = "https://api.apilayer.com/currency_data/"
-    const val API_KEY: String = "gnP1mtfFZIgoWh0sHjlQ09azzrGSd0jg"
+
     const val SOURCE: String = "USD"
     const val LIVE: String = "live"
 }
